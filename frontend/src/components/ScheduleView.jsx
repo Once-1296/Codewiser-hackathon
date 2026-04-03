@@ -125,12 +125,37 @@ export default function ScheduleView({ schedule }) {
                     transition: "transform 0.2s ease"
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                      <strong style={{ color: "var(--text-heading)", fontSize: "1.1rem" }}>
-                        {title}
-                      </strong>
-                      <span style={{ fontSize: "0.85rem", opacity: 0.8, fontWeight: "600" }}>
-                        🕒 {timeSlot}
-                      </span>
+                              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                                <strong style={{ color: "var(--text-heading)", fontSize: "1.1rem" }}>
+                                  {title}
+                                </strong>
+
+                                {/* Difficulty badge (if present) */}
+                                {(() => {
+                                  const diff = item.difficulty ?? item.classification ?? null;
+                                  if (!diff) return null;
+                                  const diffLabel = String(diff).toUpperCase();
+                                  const colors = { easy: "#34d399", medium: "#f59e0b", hard: "#ef4444" };
+                                  const bg = colors[String(diff).toLowerCase()] || "#9ca3af";
+                                  return (
+                                    <span style={{
+                                      fontSize: "0.7rem",
+                                      fontWeight: 700,
+                                      color: "white",
+                                      background: bg,
+                                      padding: "6px 8px",
+                                      borderRadius: "8px",
+                                      letterSpacing: "0.03em"
+                                    }}>
+                                      {diffLabel}
+                                    </span>
+                                  );
+                                })()}
+
+                                <span style={{ fontSize: "0.85rem", opacity: 0.8, fontWeight: "600", marginLeft: "auto" }}>
+                                  🕒 {timeSlot}
+                                </span>
+                              </div>
                     </div>
 
                     {!isBreak && (

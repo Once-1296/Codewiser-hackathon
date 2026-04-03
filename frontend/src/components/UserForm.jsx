@@ -48,7 +48,7 @@ export default function UserForm({ userState, handleUserChange }) {
 
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 200px" }}>
-          <label className="modern-label">Sleep Hours (0-24)</label>
+          <label className="modern-label">Sleep Hours (0-16)</label>
           <input
             type="number"
             name="sleep_hours"

@@ -64,15 +64,30 @@ export default function TaskList({ tasks, deleteTask }) {
             onMouseOut={(e) => e.currentTarget.style.background = "rgba(0, 0, 0, 0.2)"}
           >
             <div>
-              <strong style={{ 
-                color: "var(--text-heading)", 
-                display: "block", 
-                marginBottom: "10px", 
-                fontSize: "1.1rem", 
-                letterSpacing: "0.02em" 
-              }}>
-                {t.title}
-              </strong>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                <strong style={{ 
+                  color: "var(--text-heading)", 
+                  fontSize: "1.1rem", 
+                  letterSpacing: "0.02em" 
+                }}>
+                  {t.title}
+                </strong>
+
+                {/* show difficulty/classification if available */}
+                {t.difficulty && (
+                  <span style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    color: "white",
+                    background: t.difficulty === 'hard' ? '#ef4444' : t.difficulty === 'medium' ? '#f59e0b' : '#34d399',
+                    padding: '6px 8px',
+                    borderRadius: '8px',
+                    textTransform: 'uppercase'
+                  }}>
+                    {String(t.difficulty).toUpperCase()}
+                  </span>
+                )}
+              </div>
               
               <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                 <span style={{ 

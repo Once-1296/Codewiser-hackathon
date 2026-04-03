@@ -32,9 +32,12 @@ class PipelineService:
         logger.info(f"Classified {len(enriched_tasks)} tasks")
 
         # Step 3: schedule
+        # pass user's preferred time of day to the scheduler so we can center tougher tasks
+        preferred_time = user_state.get("time_of_day") if isinstance(user_state, dict) else None
         schedule = self.scheduler_service.generate_schedule(
             energy=energy,
-            tasks=enriched_tasks
+            tasks=enriched_tasks,
+            preferred_time_of_day=preferred_time,
         )
         # print(schedule)
         logger.info("Schedule generated successfully")

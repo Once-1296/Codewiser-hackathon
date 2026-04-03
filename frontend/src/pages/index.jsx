@@ -113,7 +113,24 @@ export default function IndexPage() {
         user_state: userState,
         tasks: tasks,
       });
-      setSchedule(res.data.schedule);
+      const scheduleResp = res.data.schedule || [];
+      setSchedule(scheduleResp);
+
+      // If backend returned difficulties for scheduled tasks, try to attach them
+      // to the current task queue so the UI shows classifications there as well.
+      if (Array.isArray(scheduleResp) && scheduleResp.length > 0) {
+        const diffMap = {};
+        scheduleResp.forEach((s) => {
+          if (s.task && s.difficulty) {
+            // map by title -> difficulty (first win)
+            if (!diffMap[s.task]) diffMap[s.task] = s.difficulty;
+          }
+        });
+
+        if (Object.keys(diffMap).length > 0) {
+          setTasks((prev) => prev.map((t) => ({ ...t, difficulty: diffMap[t.title] || t.difficulty })));
+        }
+      }
     } catch (err) {
       console.error(err);
       alert("Error generating schedule. Make sure backend is running.");

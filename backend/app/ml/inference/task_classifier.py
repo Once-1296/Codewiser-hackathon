@@ -30,7 +30,7 @@ class TaskClassifier:
 
     def _fallback(self, features):
         score = (
-            0.5 * features["estimated_time"] +
+            0.5 * features["time_score"] +
             0.3 * features["subject_score"] +
             0.2 * features["keyword_score"]
         )
