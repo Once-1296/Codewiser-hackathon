@@ -45,7 +45,7 @@ export default function IndexPage() {
   };
 
   const addTask = () => {
-    if (!taskInput.title) return;
+    if (!taskInput.title.trim()) return;
     setTasks([...tasks, taskInput]);
     setTaskInput({ title: "", estimated_time: 30, subject: "dsa" });
   };
@@ -81,38 +81,47 @@ export default function IndexPage() {
 
   return (
     <div
-      className="animate-slide-up"
+      className="animate-fade-in"
       style={{
-        padding: "40px 20px",
-        maxWidth: "650px",
+        padding: "60px 20px",
+        maxWidth: "768px",
         margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "24px"
       }}
     >
-      <h1 style={{ 
-        textAlign: "center", 
-        fontSize: "42px", 
-        marginBottom: "40px",
-        background: "linear-gradient(to right, #c084fc, #8b5cf6)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent"
-      }}>
-        Study Planner
-      </h1>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h1 className="gradient-text" style={{ fontSize: "3.5rem", marginBottom: "8px" }}>
+          Study Planner
+        </h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", maxWidth: "500px", margin: "0 auto" }}>
+          Optimize your learning workflow with AI-driven schedule generation.
+        </p>
+      </div>
 
       <UserForm userState={userState} handleUserChange={handleUserChange} />
+      
       <TaskInput taskInput={taskInput} handleTaskChange={handleTaskChange} addTask={addTask} />
+      
       <TaskList tasks={tasks} deleteTask={deleteTask} />
 
-      <hr style={{ borderColor: "rgba(255,255,255,0.05)", margin: "30px 0" }} />
-
-      <button
-        onClick={handleGenerate}
-        disabled={isGenerateDisabled}
-        className={`btn-primary ${!isGenerateDisabled ? "active" : ""}`}
-        style={{ animation: !isGenerateDisabled && !isLoading ? "pulse 2s infinite" : "none" }}
-      >
-        {isLoading ? "Generating Schedule... ⏳" : "Generate Optimized Schedule"}
-      </button>
+      <div style={{ margin: "20px 0" }}>
+        <button
+          onClick={handleGenerate}
+          disabled={isGenerateDisabled}
+          className={`btn-primary delay-4 animate-fade-in ${!isGenerateDisabled ? "active" : ""}`}
+          style={{ 
+            animation: !isGenerateDisabled && !isLoading 
+              ? "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, pulseGlow 2.5s infinite 1s" 
+              : "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            padding: "20px",
+            fontSize: "1.15rem"
+          }}
+        >
+          {isLoading ? "Analyzing Patterns & Generating... ⏳" : "Generate Optimized Schedule ✨"}
+        </button>
+      </div>
 
       {isLoading && <Loader />}
       {!isLoading && schedule && <ScheduleView schedule={schedule} />}
