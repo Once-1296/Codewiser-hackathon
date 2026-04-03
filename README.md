@@ -1,7 +1,3 @@
-📘 FINAL BACKEND README (Clean + Team-Friendly)
-
-Replace your README with this:
-
 # 🧠 Cognitive Study Planner (ML-Powered)
 
 A full-stack ML-based system that generates optimized study schedules based on user energy levels and task difficulty.
