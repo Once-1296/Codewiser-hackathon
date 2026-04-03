@@ -1,20 +1,21 @@
 export default function Loader() {
   return (
     <div
+      className="glass-card animate-slide-up"
       style={{
         textAlign: "center",
-        padding: "30px 20px",
-        background: "#2a2a2a",
-        borderRadius: "8px",
-        marginTop: "20px",
-        border: "1px dashed #4CAF50",
+        padding: "40px 20px",
+        borderRadius: "12px",
+        marginTop: "30px",
+        border: "1px solid var(--accent-border)",
       }}
     >
-      <h3 style={{ color: "#4CAF50", margin: "0 0 10px 0", fontSize: "20px" }}>
-        Generating Schedule... ⏳
+      <div className="loader-spinner"></div>
+      <h3 style={{ color: "var(--accent)", margin: "0 0 10px 0", fontSize: "20px" }}>
+        Optimizing Schedule...
       </h3>
-      <p style={{ color: "#bbb", fontSize: "14px", margin: 0 }}>
-        Please wait while our ML models analyze your energy levels and optimize your tasks.
+      <p style={{ fontSize: "14px", margin: 0, opacity: 0.8 }}>
+        Please wait while our models evaluate energy patterns to build your ideal plan.
       </p>
     </div>
   );

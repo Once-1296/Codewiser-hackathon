@@ -22,11 +22,8 @@ export default function IndexPage() {
 
   const [tasks, setTasks] = useState([]);
   const [schedule, setSchedule] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // NEW: Loading state
+  const [isLoading, setIsLoading] = useState(false);
 
-  // -------------------------
-  // Handlers
-  // -------------------------
   const handleUserChange = (e) => {
     setUserState({
       ...userState,
@@ -63,76 +60,62 @@ export default function IndexPage() {
       return;
     }
 
-    setIsLoading(true); // Disable button & show loader
-    setSchedule(null);  // Clear previous schedule while loading
+    setIsLoading(true);
+    setSchedule(null);
 
     try {
       const res = await generateSchedule({
         user_state: userState,
         tasks: tasks,
       });
-      // console.log(res.data.schedule)
       setSchedule(res.data.schedule);
     } catch (err) {
       console.error(err);
       alert("Error generating schedule. Make sure backend is running.");
     } finally {
-      setIsLoading(false); // Re-enable button & hide loader
+      setIsLoading(false);
     }
   };
 
-  // -------------------------
-  // UI
-  // -------------------------
   const isGenerateDisabled = isLoading || tasks.length === 0;
 
   return (
     <div
+      className="animate-slide-up"
       style={{
-        padding: "20px",
-        maxWidth: "600px",
-        margin: "40px auto",
-        background: "#1e1e1e",
-        borderRadius: "10px",
-        color: "white",
-        fontFamily: "system-ui, 'Segoe UI', Roboto, sans-serif",
+        padding: "40px 20px",
+        maxWidth: "650px",
+        margin: "0 auto",
       }}
     >
-      <h1 style={{ textAlign: "center", color: "#f3f4f6", fontSize: "32px", margin: "10px 0 30px" }}>
+      <h1 style={{ 
+        textAlign: "center", 
+        fontSize: "42px", 
+        marginBottom: "40px",
+        background: "linear-gradient(to right, #c084fc, #8b5cf6)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent"
+      }}>
         Study Planner
       </h1>
 
       <UserForm userState={userState} handleUserChange={handleUserChange} />
-      
       <TaskInput taskInput={taskInput} handleTaskChange={handleTaskChange} addTask={addTask} />
-      
       <TaskList tasks={tasks} deleteTask={deleteTask} />
 
-      <hr style={{ borderColor: "#333", margin: "20px 0" }} />
+      <hr style={{ borderColor: "rgba(255,255,255,0.05)", margin: "30px 0" }} />
 
       <button
         onClick={handleGenerate}
         disabled={isGenerateDisabled}
-        style={{
-          padding: "14px",
-          width: "100%",
-          background: isGenerateDisabled ? "#555" : "#4CAF50",
-          color: isGenerateDisabled ? "#999" : "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: isGenerateDisabled ? "not-allowed" : "pointer",
-          fontSize: "16px",
-          fontWeight: "bold",
-          transition: "background 0.3s"
-        }}
+        className={`btn-primary ${!isGenerateDisabled ? "active" : ""}`}
+        style={{ animation: !isGenerateDisabled && !isLoading ? "pulse 2s infinite" : "none" }}
       >
-        {isLoading ? "Generating... ⏳" : "Generate Schedule"}
+        {isLoading ? "Generating Schedule... ⏳" : "Generate Optimized Schedule"}
       </button>
 
-      {/* Conditional Rendering for Loading and Result */}
       {isLoading && <Loader />}
       {!isLoading && schedule && <ScheduleView schedule={schedule} />}
-      
     </div>
   );
 }
