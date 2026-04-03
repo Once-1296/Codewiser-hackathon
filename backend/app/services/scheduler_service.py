@@ -40,15 +40,18 @@ class SchedulerService:
         }
         center_hour = preferred_center_map.get(preferred_time_of_day, 19)
 
-        # Order tasks so that harder tasks are placed closer to the center
-        n = len(tasks_sorted)
-        positions = list(range(n))
-        center_point = (n - 1) / 2.0
-        # sort positions by distance to center (closer positions first)
-        positions.sort(key=lambda i: (abs(i - center_point), i))
-        ordered = [None] * n
-        for i, pos in enumerate(positions):
-            ordered[pos] = tasks_sorted[i]
+        # We want harder tasks clustered around the preferred time, not to center the whole block.
+        # Group tasks by difficulty and create an ordered list where hard tasks are contiguous in the middle
+        hard = [t for t in tasks_sorted if self._difficulty_score(t.get("difficulty", "medium")) == 3]
+        medium = [t for t in tasks_sorted if self._difficulty_score(t.get("difficulty", "medium")) == 2]
+        easy = [t for t in tasks_sorted if self._difficulty_score(t.get("difficulty", "medium")) == 1]
+
+        combined = medium + easy
+        mid = len(combined) // 2
+        pre = combined[:mid]
+        post = combined[mid:]
+
+        ordered = pre + hard + post
 
         # Break policy (minutes) after a task based on difficulty
         break_after = {
@@ -57,14 +60,55 @@ class SchedulerService:
             "hard": 20
         }
 
-        # compute total minutes including breaks to center the schedule
+        # compute total minutes including breaks
         total_task_minutes = sum(int(t.get("estimated_time", 60)) for t in ordered)
         total_break_minutes = sum(break_after.get(t.get("difficulty", "medium"), 10) for t in ordered)
         total_minutes = total_task_minutes + total_break_minutes
 
-        # Start time is centered around preferred time
+        # Primary work windows (hours) per preference — prefer to place hard tasks inside these when possible
+        primary_windows = {
+            "morning": (8, 12),
+            "afternoon": (12, 17),
+            "evening": (17, 21),
+            "night": (21, 2),
+        }
+
+        window = primary_windows.get(preferred_time_of_day, (17, 21))
+
+        # compute hard block minutes
+        hard_minutes = sum(int(t.get("estimated_time", 60)) for t in hard) + sum(break_after.get(t.get("difficulty", "medium"), 10) for t in hard)
+
+        # if window crosses midnight (night), treat window_end as +24 when needed
+        wstart, wend = window
+        window_length = (wend - wstart) if wend > wstart else (24 - wstart + wend)
+
+        # Decide hard block start: try to center hard block inside primary window if it fits
+        if hard and hard_minutes <= window_length * 60:
+            # center hard block within window
+            hard_start = wstart + (window_length * 60 - hard_minutes) / 120.0  # in hours
+        else:
+            # fallback: center on center_hour as before
+            hard_start = center_hour - (hard_minutes / 60.0) / 2.0
+
+        # compute minutes before hard block (pre) and after (post)
+        minutes_before = sum(int(t.get("estimated_time", 60)) + break_after.get(t.get("difficulty", "medium"), 10) for t in pre)
+        minutes_after = sum(int(t.get("estimated_time", 60)) + break_after.get(t.get("difficulty", "medium"), 10) for t in post)
+
+        # start hour is hard_start minus minutes_before
+        start_hour = hard_start - (minutes_before / 60.0)
+
+        # Clamp schedule to reasonable daytime bounds to avoid pushing into deep night
+        DAY_START = 6   # earliest hour to schedule
+        DAY_END = 22    # latest hour we'd prefer to end
+
+        # If start would be before DAY_START, push forward
+        if start_hour < DAY_START:
+            start_hour = DAY_START
+
         total_hours = total_minutes / 60.0
-        start_hour = center_hour - (total_hours / 2.0)
+        if start_hour + total_hours > DAY_END:
+            # push start earlier so it ends at DAY_END (if possible)
+            start_hour = max(DAY_START, DAY_END - total_hours)
 
         schedule = []
         current_time = start_hour
