@@ -1,4 +1,27 @@
 export default function UserForm({ userState, handleUserChange }) {
+  
+  // Internal helper to prevent typing numbers outside range
+  const handleSafeChange = (e) => {
+    const { name, value, min, max } = e.target;
+    let val = parseInt(value);
+
+    // If it's a number input and has a value, clamp it
+    if (e.target.type === "number" && value !== "") {
+      if (min && val < parseInt(min)) val = parseInt(min);
+      if (max && val > parseInt(max)) val = parseInt(max);
+      
+      // Create a fake event object to pass to the parent handler
+      handleUserChange({
+        target: {
+          name: name,
+          value: val
+        }
+      });
+    } else {
+      handleUserChange(e);
+    }
+  };
+
   return (
     <div 
       className="glass-card animate-fade-in delay-1" 
@@ -25,14 +48,17 @@ export default function UserForm({ userState, handleUserChange }) {
 
       <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 200px" }}>
-          <label className="modern-label">Sleep Hours</label>
+          <label className="modern-label">Sleep Hours (0-24)</label>
           <input
             type="number"
             name="sleep_hours"
+            min="0"
+            max="24"
             placeholder="e.g., 7"
             value={userState.sleep_hours}
-            onChange={handleUserChange}
+            onChange={handleSafeChange}
             className="modern-input"
+            style={{ backgroundColor: "#1a1a1a" }} // Force dark background
           />
         </div>
 
@@ -45,8 +71,9 @@ export default function UserForm({ userState, handleUserChange }) {
             max="5"
             placeholder="e.g., 3"
             value={userState.stress_level}
-            onChange={handleUserChange}
+            onChange={handleSafeChange}
             className="modern-input"
+            style={{ backgroundColor: "#1a1a1a" }} // Force dark background
           />
         </div>
       </div>
@@ -58,7 +85,11 @@ export default function UserForm({ userState, handleUserChange }) {
           value={userState.time_of_day}
           onChange={handleUserChange}
           className="modern-input"
-          style={{ cursor: "pointer" }}
+          style={{ 
+            cursor: "pointer", 
+            backgroundColor: "#1a1a1a", 
+            color: "white" 
+          }}
         >
           <option value="morning">Morning (6 AM - 12 PM)</option>
           <option value="afternoon">Afternoon (12 PM - 5 PM)</option>

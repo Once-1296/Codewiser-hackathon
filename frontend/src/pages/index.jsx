@@ -23,6 +23,7 @@ export default function IndexPage() {
   const [tasks, setTasks] = useState([]);
   const [schedule, setSchedule] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleUserChange = (e) => {
     setUserState({
@@ -54,9 +55,14 @@ export default function IndexPage() {
     setTasks(tasks.filter((_, i) => i !== index));
   };
 
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 400);
+  };
+
   const handleGenerate = async () => {
     if (tasks.length === 0) {
-      alert("Please add at least one task!");
+      triggerShake();
       return;
     }
 
@@ -77,7 +83,8 @@ export default function IndexPage() {
     }
   };
 
-  const isGenerateDisabled = isLoading || tasks.length === 0;
+  const isGenerateDisabled = isLoading;
+  const hasTasks = tasks.length > 0;
 
   return (
     <div
@@ -110,16 +117,20 @@ export default function IndexPage() {
         <button
           onClick={handleGenerate}
           disabled={isGenerateDisabled}
-          className={`btn-primary delay-4 animate-fade-in ${!isGenerateDisabled ? "active" : ""}`}
+          className={`
+            btn-primary delay-4 animate-fade-in 
+            ${hasTasks && !isLoading ? "active" : ""} 
+            ${isShaking ? "animate-shake" : ""}
+          `}
           style={{ 
-            animation: !isGenerateDisabled && !isLoading 
-              ? "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, pulseGlow 2.5s infinite 1s" 
+            animation: hasTasks && !isLoading 
+              ? "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, pulseGlow 2.5s infinite" 
               : "fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
             padding: "20px",
             fontSize: "1.15rem"
           }}
         >
-          {isLoading ? "Analyzing Patterns & Generating... ⏳" : "Generate Optimized Schedule ✨"}
+          {isLoading ? "Analyzing Patterns... ⏳" : "Generate Optimized Schedule ✨"}
         </button>
       </div>
 

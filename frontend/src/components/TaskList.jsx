@@ -1,5 +1,23 @@
 export default function TaskList({ tasks, deleteTask }) {
-  if (tasks.length === 0) return null;
+  // Empty State UI
+  if (tasks.length === 0) {
+    return (
+      <div 
+        className="glass-card animate-fade-in delay-3" 
+        style={{ padding: "32px", textAlign: "center" }}
+      >
+        <div className="empty-state-dash">
+          <div style={{ fontSize: "2rem", marginBottom: "12px" }}>📋</div>
+          <h3 style={{ margin: "0 0 8px 0", color: "var(--text-heading)" }}>
+            Your Queue is Empty
+          </h3>
+          <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-muted)" }}>
+            Add tasks above to start building your optimized study plan.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
