@@ -33,16 +33,17 @@ Scheduler Engine
 ↓
 Response
 
-
 ---
 
 ## 🧠 ML Pipeline
 
 ### 1. Data
+
 - Synthetic dataset generation (`dataset_loader.py`)
 - Controlled + reproducible
 
 ### 2. Features
+
 - Energy:
   - sleep_norm
   - stress_norm
@@ -53,10 +54,12 @@ Response
   - keyword_score
 
 ### 3. Models
+
 - Energy → `RandomForestRegressor`
 - Task → `DecisionTreeClassifier`
 
 ### 4. Fallbacks
+
 - Rule-based prediction if model not available
 
 ---
