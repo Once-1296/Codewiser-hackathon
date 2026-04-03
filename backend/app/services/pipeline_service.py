@@ -1,32 +1,35 @@
-"""Service layer that orchestrates energy, task, and scheduling services."""
-
-from __future__ import annotations
-
-from backend.app.schemas.schedule import ScheduleGenerationRequest, SchedulePlan
+from typing import List, Dict
 from backend.app.services.energy_service import EnergyService
-from backend.app.services.scheduler_service import SchedulerService
 from backend.app.services.task_service import TaskService
+from backend.app.services.scheduler_service import SchedulerService
 
 
 class PipelineService:
-    """Coordinate the end-to-end planning flow."""
+    """
+    Orchestrates full flow:
+    user → energy → task classification → scheduling
+    """
 
-    def __init__(
-        self,
-        energy_service: EnergyService,
-        task_service: TaskService,
-        scheduler_service: SchedulerService,
-    ) -> None:
-        """Create a pipeline service from its constituent collaborators."""
+    def __init__(self) -> None:
+        self.energy_service = EnergyService()
+        self.task_service = TaskService()
+        self.scheduler_service = SchedulerService()
 
-        self._energy_service = energy_service
-        self._task_service = task_service
-        self._scheduler_service = scheduler_service
+    def generate_plan(self, user_state: Dict, tasks: List[Dict]) -> List[Dict]:
+        """
+        Full pipeline execution.
+        """
 
-    def generate_schedule(self, request: ScheduleGenerationRequest) -> SchedulePlan:
-        """Run the placeholder pipeline and return a schedule plan."""
+        # Step 1: predict energy
+        energy = self.energy_service.predict_energy(user_state)
 
-        _ = self._energy_service.predict_energy(request.user_state)
-        task_types = [self._task_service.classify_task(task).task_type for task in request.tasks]
-        return self._scheduler_service.generate(request=request, task_types=task_types)
+        # Step 2: classify tasks
+        enriched_tasks = self.task_service.classify_tasks(tasks)
 
+        # Step 3: generate schedule
+        schedule = self.scheduler_service.generate_schedule(
+            energy=energy,
+            tasks=enriched_tasks
+        )
+
+        return schedule

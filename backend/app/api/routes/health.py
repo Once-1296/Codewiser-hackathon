@@ -1,20 +1,17 @@
-"""Health check route for liveness probes and quick validation."""
-
-from __future__ import annotations
-
+from pydantic import BaseModel
 from fastapi import APIRouter
 
-from backend.app.schemas.common import APIResponse
+router = APIRouter()
 
-router = APIRouter(tags=["health"])
+# 1. Define the "Contract" using a Pydantic model
+class HealthResponse(BaseModel):
+    message: str
+    data: dict
 
-
-@router.get("/health", response_model=APIResponse[dict[str, str]])
-def health_check() -> APIResponse[dict[str, str]]:
-    """Return a minimal health payload."""
-
-    return APIResponse(
+@router.get("/health", response_model=HealthResponse)
+def health_check():
+    # 2. Return the model instance, not just a dict
+    return HealthResponse(
         message="Service is healthy",
-        data={"status": "ok"},
+        data={"status": "ok"}
     )
-

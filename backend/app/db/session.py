@@ -1,28 +1,19 @@
-"""SQLAlchemy session configuration for the application database."""
-
-from __future__ import annotations
-
-from collections.abc import Generator
-
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
-from backend.app.core.config import get_settings
+DATABASE_URL = "sqlite:///./app.db"
 
-settings = get_settings()
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
+)
 
-engine = create_engine(settings.database_url, future=True)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+Base = declarative_base()
 
 
-class Base(DeclarativeBase):
-    """Base class for SQLAlchemy models."""
-
-
-def get_db_session() -> Generator[Session, None, None]:
-    """Yield a database session for request-scoped access."""
-
+def get_db():
     db = SessionLocal()
     try:
         yield db

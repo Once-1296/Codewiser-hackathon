@@ -1,24 +1,24 @@
-"""Schedule generation routes for orchestration of planning logic."""
-
-from __future__ import annotations
-
 from fastapi import APIRouter, Depends
 
 from backend.app.api.deps import get_pipeline_service
-from backend.app.schemas.common import APIResponse
-from backend.app.schemas.schedule import ScheduleGenerationRequest, SchedulePlan
 from backend.app.services.pipeline_service import PipelineService
+
+from backend.app.schemas.common import (
+    GenerateScheduleRequest,
+    GenerateScheduleResponse
+)
 
 router = APIRouter(prefix="/schedule", tags=["schedule"])
 
 
-@router.post("/generate", response_model=APIResponse[SchedulePlan])
+@router.post("/generate", response_model=GenerateScheduleResponse)
 def generate_schedule(
-    request: ScheduleGenerationRequest,
-    pipeline_service: PipelineService = Depends(get_pipeline_service),
-) -> APIResponse[SchedulePlan]:
-    """Run the scheduling pipeline and return a generated plan."""
+    payload: GenerateScheduleRequest,
+    pipeline: PipelineService = Depends(get_pipeline_service)
+):
+    result = pipeline.generate_plan(
+        user_state=payload.user_state.model_dump(),
+        tasks=[task.model_dump() for task in payload.tasks]
+    )
 
-    schedule_plan = pipeline_service.generate_schedule(request)
-    return APIResponse(message="Schedule generated", data=schedule_plan)
-
+    return {"schedule": result}
