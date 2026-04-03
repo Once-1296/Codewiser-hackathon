@@ -4,6 +4,7 @@ from backend.app.services.task_service import TaskService
 from backend.app.services.scheduler_service import SchedulerService
 
 from backend.app.utils.logger import get_logger
+from backend.app.ml.inference.efficiency_predictor import EfficiencyPredictor
 
 logger = get_logger(__name__)
 
@@ -17,6 +18,11 @@ class PipelineService:
         self.energy_service = EnergyService()
         self.task_service = TaskService()
         self.scheduler_service = SchedulerService()
+        # efficiency predictor (optional, will be None if model not found)
+        try:
+            self.efficiency_predictor = EfficiencyPredictor()
+        except Exception:
+            self.efficiency_predictor = None
 
     def generate_plan(self, user_state: Dict, tasks: List[Dict]) -> List[Dict]:
 
@@ -39,8 +45,15 @@ class PipelineService:
             tasks=enriched_tasks,
             preferred_time_of_day=preferred_time,
         )
-        # print(schedule)
         logger.info("Schedule generated successfully")
+
+        # Step 4: score schedule with efficiency predictor (if available)
+        try:
+            if self.efficiency_predictor and schedule:
+                scored = self.efficiency_predictor.predict_schedule(schedule, user_state, energy)
+                return scored
+        except Exception:
+            logger.exception("Efficiency predictor failed; returning unscored schedule")
 
         return schedule
 

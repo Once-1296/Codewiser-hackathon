@@ -48,6 +48,54 @@ def build_task_features(task: Dict) -> Dict:
     }
 
 
+def build_efficiency_features(item: Dict, user_state: Dict, energy: float, position: int, cumulative_minutes: int, break_before: int) -> Dict:
+    """
+    Build features for efficiency model per scheduled task.
+    item: scheduled entry or original task dict containing title, estimated_time, difficulty
+    user_state: original user state dict (sleep_hours, stress_level, time_of_day)
+    energy: predicted energy (0-1)
+    position: index in schedule (0..n-1)
+    cumulative_minutes: minutes scheduled before this task
+    break_before: minutes of gap before this task
+    """
+
+    task = item
+    tf = build_task_features(task)
+    energy_feats = build_energy_features(user_state)
+
+    start_hour = 0
+    # try to parse start hour from time_slot if available: 'HH:MM-HH:MM'
+    ts = item.get("time_slot") or ""
+    try:
+        if ts and "-" in ts:
+            start = ts.split("-")[0]
+            start_hour = int(start.split(":")[0]) + int(start.split(":")[1]) / 60.0
+    except Exception:
+        start_hour = 0
+
+    features = {
+        # task features
+        "time_score": tf["time_score"],
+        "subject_score": tf["subject_score"],
+        "keyword_score": tf["keyword_score"],
+        "estimated_time": int(task.get("estimated_time", 30)),
+        # user / energy
+        "sleep_hours": float(user_state.get("sleep_hours", 7)),
+        "stress_level": int(user_state.get("stress_level", 3)),
+        "energy_pred": float(energy),
+        "time_of_day_score": float(energy_feats.get("time_score", 0)),
+        # schedule context
+        "start_hour": float(start_hour),
+        "position": int(position),
+        "cumulative_minutes": int(cumulative_minutes),
+        "break_before": int(break_before),
+        # difficulty encoded ordinal
+        "difficulty": 2 if task.get("difficulty") == "medium" else (3 if task.get("difficulty") == "hard" else 1)
+    }
+
+    return features
+
+
 def score_time(minutes: int) -> float:
     if minutes <= 30:
         return 0.3
