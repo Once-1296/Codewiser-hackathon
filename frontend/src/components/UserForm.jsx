@@ -52,8 +52,6 @@ export default function UserForm({ userState, handleUserChange }) {
           <input
             type="number"
             name="sleep_hours"
-            min="0"
-            max="24"
             placeholder="e.g., 7"
             min="0"
             max="16"

@@ -46,6 +46,7 @@ export default function TaskInput({ taskInput, handleTaskChange, addTask, remain
             type="number"
             name="estimated_time"
             min="5"
+            max="300"
             step="5"
             value={taskInput.estimated_time}
             onChange={handleTaskChange}
