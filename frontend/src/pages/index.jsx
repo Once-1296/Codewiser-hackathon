@@ -71,7 +71,7 @@ export default function IndexPage() {
         user_state: userState,
         tasks: tasks,
       });
-
+      // console.log(res.data.schedule)
       setSchedule(res.data.schedule);
     } catch (err) {
       console.error(err);

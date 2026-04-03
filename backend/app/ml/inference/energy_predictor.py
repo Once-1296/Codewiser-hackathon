@@ -18,11 +18,13 @@ class EnergyPredictor:
         features = build_energy_features(user_state)
 
         if self.model:
-            X = [[
-                features["sleep_normalized"],
-                features["stress_normalized"],
-                features["time_score"]
-            ]]
+            import pandas as pd
+
+            X = pd.DataFrame([{
+                "sleep_normalised": features["sleep_normalised"],
+                "stress_normalised": features["stress_normalised"],
+                "time_score": features["time_score"]
+            }])
             return float(self.model.predict(X)[0])
 
         # fallback
@@ -30,7 +32,7 @@ class EnergyPredictor:
 
     def _fallback(self, features):
         return max(0.0, min(1.0,
-            0.5 * features["sleep_normalized"] +
-            0.3 * features["stress_normalized"] +
+            0.5 * features["sleep_normalised"] +
+            0.3 * features["stress_normalised"] +
             0.2 * features["time_score"]
         ))

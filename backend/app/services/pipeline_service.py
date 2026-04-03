@@ -21,7 +21,8 @@ class PipelineService:
     def generate_plan(self, user_state: Dict, tasks: List[Dict]) -> List[Dict]:
 
         logger.info("Starting pipeline execution")
-
+        # print(user_state)
+        # print(tasks)
         # Step 1: energy
         energy = self.energy_service.predict_energy(user_state)
         logger.info(f"Predicted energy: {energy}")
@@ -35,7 +36,7 @@ class PipelineService:
             energy=energy,
             tasks=enriched_tasks
         )
-
+        # print(schedule)
         logger.info("Schedule generated successfully")
 
         return schedule
