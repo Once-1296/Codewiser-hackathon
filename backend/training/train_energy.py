@@ -11,8 +11,8 @@ def load_data():
 
 def preprocess(df):
     # basic feature engineering
-    df["sleep_norm"] = df["sleep_hours"] / 8
-    df["stress_norm"] = 1 - (df["stress_level"] - 1) / 4
+    df["sleep_normalised"] = df["sleep_hours"] / 8
+    df["stress_normalised"] = 1 - (df["stress_level"] - 1) / 4
 
     df["time_score"] = df["time_of_day"].map({
         "morning": 1.0,
@@ -21,7 +21,7 @@ def preprocess(df):
         "night": 0.4
     }).fillna(0.7)
 
-    X = df[["sleep_norm", "stress_norm", "time_score"]]
+    X = df[["sleep_normalised", "stress_normalised", "time_score"]]
     y = df["energy_score"]
 
     return X, y

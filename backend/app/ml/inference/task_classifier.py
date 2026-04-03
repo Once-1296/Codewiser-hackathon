@@ -18,11 +18,12 @@ class TaskClassifier:
         features = build_task_features(task)
 
         if self.model:
-            X = [[
-                task.get("estimated_time", 30),
-                features["subject_score"],
-                features["keyword_score"]
-            ]]
+            import pandas as pd
+            X = pd.DataFrame([{
+                "estimated_time": task.get("estimated_time",30),
+                "subject_score": features["subject_score"],
+                "keyword_score": features["keyword_score"]
+            }])
             return str(self.model.predict(X)[0])
 
         return self._fallback(features)

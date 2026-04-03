@@ -72,4 +72,3 @@ pytest backend/tests
 - No real ML model is implemented yet.
 - All service and ML layers return deterministic placeholder values.
 - The codebase is structured to support incremental bottom-up development.
-

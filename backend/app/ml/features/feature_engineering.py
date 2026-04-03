@@ -11,8 +11,8 @@ def build_energy_features(user_state: Dict) -> Dict:
     """
 
     return {
-        "sleep_normalized": normalize_sleep(user_state.get("sleep_hours", 0)),
-        "stress_normalized": normalize_stress(user_state.get("stress_level", 3)),
+        "sleep_normalised": normalize_sleep(user_state.get("sleep_hours", 0)),
+        "stress_normalised": normalize_stress(user_state.get("stress_level", 3)),
         "time_score": encode_time_of_day(user_state.get("time_of_day", "afternoon"))
     }
 
