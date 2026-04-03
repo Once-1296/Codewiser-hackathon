@@ -55,11 +55,17 @@ export default function UserForm({ userState, handleUserChange }) {
             min="0"
             max="24"
             placeholder="e.g., 7"
+            min="0"
+            max="16"
+            step="0.25"
             value={userState.sleep_hours}
             onChange={handleSafeChange}
             className="modern-input"
             style={{ backgroundColor: "#1a1a1a" }} // Force dark background
           />
+          <div style={{ fontSize: "0.85rem", color: "#9ca3af", marginTop: "6px" }}>
+            Enter hours between 0.0 and 16.0
+          </div>
         </div>
 
         <div style={{ flex: "1 1 200px" }}>
@@ -69,12 +75,16 @@ export default function UserForm({ userState, handleUserChange }) {
             name="stress_level"
             min="1"
             max="5"
+            step="1"
             placeholder="e.g., 3"
             value={userState.stress_level}
             onChange={handleSafeChange}
             className="modern-input"
             style={{ backgroundColor: "#1a1a1a" }} // Force dark background
           />
+          <div style={{ fontSize: "0.85rem", color: "#9ca3af", marginTop: "6px" }}>
+            Integer between 1 (low) and 5 (high)
+          </div>
         </div>
       </div>
 

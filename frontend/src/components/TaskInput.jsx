@@ -1,5 +1,8 @@
-export default function TaskInput({ taskInput, handleTaskChange, addTask }) {
-  const isFormValid = taskInput.title.trim() !== "";
+export default function TaskInput({ taskInput, handleTaskChange, addTask, remainingMinutes }) {
+  const titleValid = taskInput.title && taskInput.title.trim() !== "";
+  const timeValid = Number.isInteger(Number(taskInput.estimated_time)) && Number(taskInput.estimated_time) >= 5 && Number(taskInput.estimated_time) <= 300;
+  const fitsRemaining = Number(taskInput.estimated_time) <= remainingMinutes;
+  const isFormValid = titleValid && timeValid && fitsRemaining;
 
   return (
     <div 
@@ -48,6 +51,13 @@ export default function TaskInput({ taskInput, handleTaskChange, addTask }) {
             onChange={handleTaskChange}
             className="modern-input"
           />
+          <div style={{ marginTop: "6px", fontSize: "0.85rem", color: remainingMinutes <= 60 ? "#ffb86b" : "#9ca3af" }}>
+            {remainingMinutes <= 0 ? (
+              "No remaining minutes available (max total 720 mins)."
+            ) : (
+              `Remaining allocatable minutes: ${remainingMinutes}`
+            )}
+          </div>
         </div>
         
         <div style={{ flex: "1 1 200px" }}>
@@ -73,6 +83,7 @@ export default function TaskInput({ taskInput, handleTaskChange, addTask }) {
         disabled={!isFormValid}
         className={`btn-primary ${isFormValid ? "active" : ""}`}
         style={{ marginTop: "8px" }}
+        title={!titleValid ? "Provide a task title" : !timeValid ? "Time must be 5-300 mins" : !fitsRemaining ? "Exceeds remaining minutes" : "Add task"}
       >
         + Add Task to Queue
       </button>

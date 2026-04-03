@@ -26,28 +26,67 @@ export default function IndexPage() {
   const [isShaking, setIsShaking] = useState(false);
 
   const handleUserChange = (e) => {
-    setUserState({
-      ...userState,
-      [e.target.name]:
-        e.target.name === "sleep_hours" || e.target.name === "stress_level"
-          ? Number(e.target.value)
-          : e.target.value,
-    });
+    const name = e.target.name;
+    const raw = e.target.value;
+
+    if (name === "sleep_hours") {
+      // allow real numbers, clamp to [0.0, 16.0]
+      let v = Number(raw);
+      if (Number.isNaN(v)) v = 0;
+      v = Math.max(0, Math.min(16, v));
+      setUserState({ ...userState, sleep_hours: v });
+      return;
+    }
+
+    if (name === "stress_level") {
+      // integer in [1,5]
+      let v = Math.round(Number(raw));
+      if (Number.isNaN(v)) v = 1;
+      v = Math.max(1, Math.min(5, v));
+      setUserState({ ...userState, stress_level: v });
+      return;
+    }
+
+    setUserState({ ...userState, [name]: raw });
   };
 
   const handleTaskChange = (e) => {
-    setTaskInput({
-      ...taskInput,
-      [e.target.name]:
-        e.target.name === "estimated_time"
-          ? Number(e.target.value)
-          : e.target.value,
-    });
+    const name = e.target.name;
+    const raw = e.target.value;
+
+    if (name === "estimated_time") {
+      // integer minutes in [5,300]
+      let v = Math.round(Number(raw));
+      if (Number.isNaN(v)) v = 0;
+      v = Math.max(5, Math.min(300, v));
+      setTaskInput({ ...taskInput, estimated_time: v });
+      return;
+    }
+
+    setTaskInput({ ...taskInput, [name]: raw });
   };
 
   const addTask = () => {
-    if (!taskInput.title.trim()) return;
-    setTasks([...tasks, taskInput]);
+    // basic validations
+    if (!taskInput.title || !taskInput.title.trim()) {
+      alert("Task title is required");
+      return;
+    }
+
+    const est = Number(taskInput.estimated_time) || 0;
+    if (!Number.isInteger(est) || est < 5 || est > 300) {
+      alert("Task time must be an integer between 5 and 300 minutes");
+      return;
+    }
+
+    const totalMinutes = tasks.reduce((s, t) => s + Number(t.estimated_time || 0), 0);
+    const remaining = 720 - totalMinutes;
+    if (est > remaining) {
+      alert(`Cannot add task: only ${remaining} minutes remain (max total 720 mins)`);
+      return;
+    }
+
+    setTasks([...tasks, { ...taskInput, estimated_time: est }]);
     setTaskInput({ title: "", estimated_time: 30, subject: "dsa" });
   };
 
@@ -86,6 +125,9 @@ export default function IndexPage() {
   const isGenerateDisabled = isLoading;
   const hasTasks = tasks.length > 0;
 
+  const totalMinutes = tasks.reduce((s, t) => s + Number(t.estimated_time || 0), 0);
+  const remainingMinutes = Math.max(0, 720 - totalMinutes);
+
   return (
     <div
       className="animate-fade-in"
@@ -109,7 +151,7 @@ export default function IndexPage() {
 
       <UserForm userState={userState} handleUserChange={handleUserChange} />
       
-      <TaskInput taskInput={taskInput} handleTaskChange={handleTaskChange} addTask={addTask} />
+  <TaskInput taskInput={taskInput} handleTaskChange={handleTaskChange} addTask={addTask} remainingMinutes={remainingMinutes} />
       
       <TaskList tasks={tasks} deleteTask={deleteTask} />
 
