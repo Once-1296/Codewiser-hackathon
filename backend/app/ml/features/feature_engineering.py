@@ -43,7 +43,8 @@ def encode_time_of_day(time_of_day: str) -> float:
 def build_task_features(task: Dict) -> Dict:
     return {
         "time_score": score_time(task.get("estimated_time", 30)),
-        "subject_score": score_subject(task.get("subject", ""))
+        "subject_score": score_subject(task.get("subject", "")),
+        "keyword_score": extract_keyword_score(task.get("title", ""))
     }
 
 
@@ -65,3 +66,26 @@ def score_subject(subject: str) -> float:
         "english": 0.4
     }
     return mapping.get(subject.lower(), 0.6)
+
+def extract_keyword_score(title: str) -> float:
+    title = title.lower()
+
+    hard_keywords = ["dp", "dynamic", "graph", "optimize"]
+    medium_keywords = ["practice", "exercise", "problem"]
+    easy_keywords = ["read", "revise", "notes"]
+
+    score = 0.5  # default
+
+    for word in hard_keywords:
+        if word in title:
+            return 1.0
+
+    for word in medium_keywords:
+        if word in title:
+            return 0.7
+
+    for word in easy_keywords:
+        if word in title:
+            return 0.3
+
+    return score
